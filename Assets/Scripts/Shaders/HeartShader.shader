@@ -1,5 +1,7 @@
 // Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "Unlit/HeartShader"
 {
     Properties
@@ -55,14 +57,6 @@ Shader "Unlit/HeartShader"
 					
 				);
                 v.vertex = mul(rot, v.vertex);
-
-     //            float4x4 rot4d = float4x4
-     //            (
-     //                cos(angle), 0,sin(angle), 0,
-					// 0, 1,  0, 0,
-					// 0, 0, 1, 0,
-     //                sin(angle), 0, cos(angle), 0
-     //            );
                 o.vertex = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.uv, _MainTex);
                 UNITY_TRANSFER_FOG(o,o.vertex);
