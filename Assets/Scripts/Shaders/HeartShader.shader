@@ -10,8 +10,10 @@ Shader "Unlit/HeartShader"
     }
     SubShader
     {
-        Tags { "RenderType"="Opaque" }
+        Tags {"Queue" = "Transparent" "RenderType"="Opaque" }
         LOD 100
+
+        ZWrite On
 
         Pass
         {
@@ -72,6 +74,6 @@ Shader "Unlit/HeartShader"
                 return col;
             }
             ENDCG
-        }
+        }   
     }
 }
