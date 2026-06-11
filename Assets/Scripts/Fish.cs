@@ -35,7 +35,6 @@ public class Fish : MonoBehaviour
     void Update()
     {
         upVector = Vector3.Normalize(Vector3.Cross(transform.position - movePoints[currentpoint].transform.position , transform.position - middlePoint.transform.position));
-        //forwardVector = Vector3.Normalize(Vector3.Cross(rightVector, upVector));
 
         if ((transform.position - movePoints[currentpoint].transform.position).magnitude <= amountToNextPoint)
         {

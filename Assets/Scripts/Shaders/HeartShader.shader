@@ -81,20 +81,21 @@ Shader "Unlit/HeartShader"
                 half4 col = tex2D(_MainTex, i.uv);
                 // apply fog
                 //UNITY_APPLY_FOG(i.fogCoord, col);
-                InputData lighting = (InputData)0;
-                //handles lit
-                lighting.positionWS = i.vertexWS;
-                lighting.normalWS = normalize(mul(UNITY_MATRIX_M, float4(i.normal.xyz, 0)));
-                lighting.viewDirectionWS = GetWorldSpaceViewDir(i.vertexWS);
-                lighting.shadowCoord = TransformWorldToShadowCoord(i.vertexWS);
+                // InputData lighting = (InputData)0;
+                // handles lit
+                // lighting.positionWS = i.vertexWS;
+                // lighting.normalWS = normalize(mul(UNITY_MATRIX_M, float4(i.normal.xyz, 0)));
+                // lighting.viewDirectionWS = GetWorldSpaceViewDir(i.vertexWS);
+                // lighting.shadowCoord = TransformWorldToShadowCoord(i.vertexWS);
 
-                SurfaceData surface = (SurfaceData) 0;
-                surface.albedo = col.xyz;
-                surface.alpha = 1;
-                surface.smoothness = 0;
-                surface.specular = 0.5;
-                surface.metallic = 0;
-                return UniversalFragmentBlinnPhong(lighting, surface) + unity_AmbientSky;
+                // SurfaceData surface = (SurfaceData) 0;
+                // surface.albedo = col.xyz;
+                // surface.alpha = 1;
+                // surface.smoothness = 0;
+                // surface.specular = 0.5;
+                // surface.metallic = 0;
+                // return UniversalFragmentBlinnPhong(lighting, surface) + unity_AmbientSky;
+                return col;
             }
             ENDHLSL
         }   
