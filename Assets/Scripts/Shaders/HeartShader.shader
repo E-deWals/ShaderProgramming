@@ -10,32 +10,39 @@ Shader "Unlit/HeartShader"
     }
     SubShader
     {
-        Tags {"Queue" = "Transparent" "RenderType"="Opaque" }
+        Tags {"Queue" = "Opaque" "RenderType"="Opaque" "RenderPipeline" = "UniversalPipeline" "LightMode" = "UniversalForward"}
         LOD 100
 
         ZWrite On
 
         Pass
         {
-            CGPROGRAM
+            HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
             // make fog work
             #pragma multi_compile_fog
 
-            #include "UnityCG.cginc"
+            #pragma shader_feature _FORWARD_PLUS
+            #pragma shader_feature_fragment _ _MAIN_LIGHT_SHADOWS _MAIN_LIGHT_SHADOWS_CASCADE _MAIN_LIGHT_SHADOWS_SCREEN
+            #pragma shader_feature_fragment _ADDITIONAL_LIGHT_SHADOWS
 
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             struct appdata
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
+                float4 normal: NORMAL; 
             };
 
             struct v2f
             {
                 float2 uv : TEXCOORD0;
-                UNITY_FOG_COORDS(1)
+                //UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
+                float3 vertexWS: TEXCOORD1;
+                float4 normal: NORMAL;
             };
 
             sampler2D _MainTex;
@@ -58,22 +65,38 @@ Shader "Unlit/HeartShader"
                     0, 0, 0, 1
 					
 				);
+                o.normal = v.normal;
                 v.vertex = mul(rot, v.vertex);
-                o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-                UNITY_TRANSFER_FOG(o,o.vertex);
+                o.vertexWS = mul(UNITY_MATRIX_M, v.vertex);
+                o.vertex = mul(UNITY_MATRIX_MVP, v.vertex);
+                //o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = v.uv;
+                //UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
             }
 
-            fixed4 frag (v2f i) : SV_Target
+            half4 frag (v2f i) : SV_Target
             {
                 // sample the texture
-                fixed4 col = tex2D(_MainTex, i.uv);
+                half4 col = tex2D(_MainTex, i.uv);
                 // apply fog
-                UNITY_APPLY_FOG(i.fogCoord, col);
-                return col;
+                //UNITY_APPLY_FOG(i.fogCoord, col);
+                InputData lighting = (InputData)0;
+                //handles lit
+                lighting.positionWS = i.vertexWS;
+                lighting.normalWS = normalize(mul(UNITY_MATRIX_M, float4(i.normal.xyz, 0)));
+                lighting.viewDirectionWS = GetWorldSpaceViewDir(i.vertexWS);
+                lighting.shadowCoord = TransformWorldToShadowCoord(i.vertexWS);
+
+                SurfaceData surface = (SurfaceData) 0;
+                surface.albedo = col.xyz;
+                surface.alpha = 1;
+                surface.smoothness = 0;
+                surface.specular = 0.5;
+                surface.metallic = 0;
+                return UniversalFragmentBlinnPhong(lighting, surface) + unity_AmbientSky;
             }
-            ENDCG
+            ENDHLSL
         }   
     }
 }
